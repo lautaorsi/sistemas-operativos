@@ -12,7 +12,11 @@
 3.  - **-a**: no ignora las entradas que empiezan con .
     - **-d**: lista los directorios, no sus contenidos 
     - **-h**: lo hace mas leíble cuando se combina con -l o -s, imprimiendo tamaños como 1K, 234M, 2G, etc.
-    - **-l**: usa un formato de lista larga
+    - **-l**: da mas informacion sobre cada archivo/directorio
     - **-S**: ordena por tamaño de archivo de forma DESC
     - **-t**: ordena por tiempo, poniendo los mas nuevos primero
     - **-r**: cuando ordena hace en orden inverso
+
+## Ejercicio 4 (Manejo de archivos y directorios)
+3. La diferencia entre **rmdir** y **rm -r** es que **rmdir** permite unicamente borrar directorios que estan vacíos, mientras que **rm -r** nos permite borrar directorios junto con todos sus elementos internos. (**-r** indica que se eliminara todo de forma recursiva)
+

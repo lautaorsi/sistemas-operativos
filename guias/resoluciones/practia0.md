@@ -20,3 +20,21 @@
 ## Ejercicio 4 (Manejo de archivos y directorios)
 3. La diferencia entre **rmdir** y **rm -r** es que **rmdir** permite unicamente borrar directorios que estan vacíos, mientras que **rm -r** nos permite borrar directorios junto con todos sus elementos internos. (**-r** indica que se eliminara todo de forma recursiva)
 
+## Ejercicio 5 (Permisos)
+1. user: read, write | group: read | other: read
+*Usar chmod (u,g,o)(+-)(r,w,x) para modificarlos*
+
+## Ejercicio 6 (Archivos de texto: ver contenido)
+*Cat muestra contenido, si es muy largo solo muestra el final* <br>
+*More muestra el principio, podes ir bajando por paginas con el espacio* <br>
+*Less muestra el principio, podes subir y bajar, apretar q para salir* 
+
+## Ejercicio 7 (Archivos de texto: extraer lineas y campos)
+*grep (patron) (archivo) nos permite buscar las lineas que coincidan con (patron)*
+
+1. opciones: 
+    - **n**: retorna el indice de la linea que matchea
+    - **c**: retorna un contador de matches en vez de los matcheos 
+    - **i**: hace que sea case insensitive (no importa mayuscula o minuscula)
+    - **v**: invierte el match (muestra aquellas que no matchean) 
+    - **w**: el match tiene que formar una palabra entera

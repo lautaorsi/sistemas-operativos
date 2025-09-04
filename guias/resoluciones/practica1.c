@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <sys/wait.h>
 #include <signal.h>
+#include <linux/sched.h>
+
 
 int ej5(){
     
@@ -75,9 +77,28 @@ void ej9(){
 
 }
 
+void ej10(){
+    int clone_pid = clone();
+    if(clone_pid == 0){
+        printf("soy Julieta\n");
+        int clone2_pid = clone();
+        if(clone2_pid == 0){
+            printf("Soy Jennifer");
+        }
+        exit(0);
+    }
+    printf("soy Juan\n");
+    wait(NULL);
+    clone_pid = clone();
+    if(clone_pid == 0){
+        printf("soy jorge\n");
+    }
+    exit(0);
+}
+
 
 int main(){
-    ej9();
+    ej10();
     return 0;
 }
 

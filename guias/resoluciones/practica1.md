@@ -41,3 +41,7 @@ No son iguales:
 
 ### Ejercicio 9
 [Resuelto en practica1.c](./practica1.c)
+
+### Ejercicio 10
+[Resuelto en practica1.c](./practica1.c)
+

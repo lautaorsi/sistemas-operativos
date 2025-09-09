@@ -36,13 +36,22 @@ static int run(char ***progs, size_t count)
 		proceso_i = i;
 		children[i] = fork();
 		pid = children[i];
-		if(pid == 0) break;
+		if(pid == 0)break;
+		else printf("creado hijo: %d, pid: %d \n", proceso_i, pid);
+	}
+
+	if(pid != 0){
+		printf("soy padre");
+		//cierro todos los pipes
+		for(int i = 0; i < count - 1 ; i++){
+			close(pipes[i][READ]);
+			close(pipes[i][WRITE]);
+		}
 	}
 
 
 	if(pid == 0){  //si soy hijo
 		printf("soy hijo: %d \n", proceso_i);
-		sleep(1);
 
 		// if( proceso_i != count - 1){ //para todos salvo el ultimo proceso, lo que iba al output va a pipe[i][WRITE]
 		// 	dup2(pipes[proceso_i][WRITE], STD_OUTPUT);
@@ -55,19 +64,24 @@ static int run(char ***progs, size_t count)
 
 		//Primer hijo
 		if(proceso_i == 0){
+
 			dup2(pipes[proceso_i][WRITE], STD_OUTPUT);
 			//Cierra todo salvo su write
-			close(pipes[0][READ]);
-			for(int i = 1; i < count -1; i++){
+			close(pipes[proceso_i][READ]);
+			for(int i = 1; i < count -2; i++){
 				close(pipes[i][READ]);
 				close(pipes[i][WRITE]);
 			}
+
+			//ejecuto comando
 			execvp(progs[proceso_i][0], progs[proceso_i]);
 		}
-		//Ultimo hijo cierra todo salvo el read del anterior
+		//Ultimo hijo
 		if(proceso_i == count -1){
-			close(pipes[proceso_i -1][WRITE]);
 			dup2(pipes[proceso_i - 1][READ], STD_INPUT);
+
+			//Cierro todo salvo el read del proceso anterior
+			close(pipes[proceso_i -1][WRITE]);
 			for(int i = 0; i < count - 2; i++){
 				close(pipes[i][READ]);
 				close(pipes[i][WRITE]);
@@ -75,7 +89,9 @@ static int run(char ***progs, size_t count)
 		}
 		//cualquier otro hijo 
 		if(proceso_i != 0 && proceso_i != count-1){
-			for(int i = 0; i < count; i++){
+			dup2(pipes[proceso_i][WRITE], STD_OUTPUT);
+			dup2(pipes[proceso_i - 1][READ], STD_INPUT);
+			for(int i = 0; i < count - 1; i++){
 				if(i != proceso_i - 1){
 					close(pipes[i][WRITE]);
 				}
@@ -111,7 +127,6 @@ static int run(char ***progs, size_t count)
 	free(pipes);
 	r = 0;
 	free(children);
-
 	return r;
 }
 

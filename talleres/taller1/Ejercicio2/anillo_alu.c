@@ -22,33 +22,26 @@ void procesoHijo(){
 	for(int i = 0; i < n; i++){
 		if(proceso_i == start){
 			if(i != proceso_i && i != n - 1){
-				printf("i es %d ,n es %d \n",i, n - 1);
 				close(pipes[i][READ]);
 				close(pipes[i][WRITE]);
-				printf("proceso: %d cierro pipe %d \n", proceso_i ,i);
 			}
 			if(i == proceso_i){
 				close(pipes[i][READ]);
-				printf("proceso: %d cierro pipe read %d \n", proceso_i ,i);
 			}
 			if(i == n - 1){
 				close(pipes[i][WRITE]);
-				printf("proceso: %d cierro pipe write %d \n", proceso_i ,i);
 			}
 		}
 		else{
 			if(i != proceso_i && i != proceso_i - 1){
 				close(pipes[i][READ]);
 				close(pipes[i][WRITE]);
-				printf("proceso: %d cierro pipe %d \n", proceso_i ,i);
 			}
 			if(i == proceso_i){
 				close(pipes[i][READ]);
-				printf("proceso: %d cierro pipe %d \n", proceso_i ,i);
 			}
 			if(i == proceso_i - 1){
 				close(pipes[i][WRITE]);
-				printf("proceso: %d cierro pipe %d \n", proceso_i ,i);
 			}
 		}
 	}
@@ -56,25 +49,27 @@ void procesoHijo(){
 	while(1){
 		//espero a escritura del proceso anterior
 		if(proceso_i == 0){
-			printf("proceso %d espera escritura en n-1 = %d \n", proceso_i, n-1);
-			read(pipes[n-1][READ],&numero, sizeof(int));	
+			
+			if(read(pipes[n-1][READ],&numero, sizeof(int)) == -1){
+				break;
+			}
 		}
 		else{
-			printf("proceso %d espera escritura \n", proceso_i);
-			read(pipes[proceso_i-1][READ], &numero, sizeof(int));
+			
+			if(read(pipes[proceso_i-1][READ], &numero, sizeof(int)) == -1){
+				break;
+			}
 		}
-		printf("proceso %d recibo numero: %d \n", proceso_i, numero);
-		
 		//si soy proceso iniciador me fijo si el numero secreto es menor al actual
-		if(proceso_i == start && randomNum < numero){
-			printf("%d no es menor a numero actual \n", numero);
+		if(proceso_i == start && randomNum <= numero){
+			
 			//si es menor, mando el resultado a proceso padre
-			write(pipes[n+2][WRITE], &numero, sizeof(int));
+			write(pipes[n+1][WRITE], &numero, sizeof(int));
 			break;
 		}
 		//incremento y escribo si no soy proceso iniciador y/o no es mayor a numero secreto
 		numero += 1;
-		printf("hijo %d envio numero %d \n", proceso_i ,numero);
+		
 		write(pipes[proceso_i][WRITE], &numero, sizeof(int));
 	}
 }
@@ -86,7 +81,7 @@ void procesoHijoInicial(){
 	while(randomNum < valor_inicial){
 		randomNum = generate_random_number();
 	}
-	printf("numero random: %d escrito en %d\n", randomNum, proceso_i);
+	
 	write(pipes[proceso_i][WRITE], &randomNum, sizeof(int));
 	procesoHijo();
 }
@@ -113,7 +108,7 @@ int main(int argc, char **argv)
 	int pids[n];
 
 	//creo pipes
-	for(int i = 0; i <= n +1; i++){
+	for(int i = 0; i <= n + 1; i++){
 		pipe(pipes[i]);
 	}
 	

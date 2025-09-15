@@ -69,6 +69,7 @@ int main() {
     printf("servidor: esperando conexión del cliente...\n");
 
     while(1) {
+        //acepto link
         client_socket = accept(server_socket, (struct sockaddr *) &client_addr, &clen);
         if (client_socket == -1) {
             perror("Error en accept");
@@ -77,28 +78,23 @@ int main() {
         
         int pid = fork();
 
-        if(pid != 0){
-            continue;
+        if(pid == 0){
+            printf("servidor recibe nuevo cliente \n");
+            char expresion[256];
+            while(1){
+                ssize_t tamano_mensaje = recv(client_socket,expresion,256,0);
+                if(tamano_mensaje == 0){
+                    exit(0);
+                }
+                resultado = calcular(expresion);
+                printf("%d \n", resultado);
+                send(client_socket, &resultado, sizeof(int), 0);   
+            }  
         }
-        
-        printf("servidor recibe nuevo cliente \n");
-        
-        char expresion[100];
-        while(1){
-            if(recv(client_socket,expresion,strlen(expresion),0) == -1){
-                perror("Error en recv");
-                exit(EXIT_FAILURE);
-            }
-            printf("recibo expresion %s \n", expresion);
-            if(strcmp(expresion, "exit") == 0){
-                break;
-            }
-            resultado = calcular(expresion);
-            printf("El resultado de la operación es: %d\n", resultado);    
-        }  
-        break;
     }
     close(client_socket);
+    unlink(server_addr.sun_path);
     exit(0);
 }
+
 

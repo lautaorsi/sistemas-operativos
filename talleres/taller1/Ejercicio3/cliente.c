@@ -21,19 +21,27 @@ int main() {
     }
 	
 	printf("conexion validada \n");
-	char operacion[100];
+	char operacion[256];
 	while(1){
 		scanf("%s", operacion);
-		
-			
+		//si es exit el msj salgo
 		if(strcmp(operacion,"exit") == 0){
-			exit(0);
+			break;
 		}
-			
-		if(send(server_socket, &operacion, strlen(operacion), 0) == -1){
+		//mando mensaje
+		if(send(server_socket,&operacion,256,0) == -1){
 			perror("Error");
 			exit(EXIT_FAILURE);
 		};
+		//espero procesamiento del sv
+		int resultado;
+		if(recv(server_socket,&resultado,sizeof(int),0) == -1){
+			perror("Error");
+			exit(EXIT_FAILURE);
+		}
+		//printeo resultado
+		printf("resultado: %d \n", resultado);
+		
 	}
 
 

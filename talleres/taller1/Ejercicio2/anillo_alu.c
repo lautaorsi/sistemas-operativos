@@ -49,13 +49,11 @@ void procesoHijo(){
 	while(1){
 		//espero a escritura del proceso anterior
 		if(proceso_i == 0){
-			
 			if(read(pipes[n-1][READ],&numero, sizeof(int)) == -1){
 				break;
 			}
 		}
 		else{
-			
 			if(read(pipes[proceso_i-1][READ], &numero, sizeof(int)) == -1){
 				break;
 			}
@@ -140,6 +138,7 @@ int main(int argc, char **argv)
 	for(int i = 0; i < n; i++){
 		kill(9, pids[i]);
 	}
+
 	printf("numero: %d \n",dato);
     /* COMPLETAR */
     

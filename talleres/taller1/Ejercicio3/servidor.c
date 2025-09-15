@@ -44,11 +44,48 @@ int calcular(const char *expresion) {
 }
 
 int main() {
-     
-    // COMPLETAR. Este es un ejemplo de funcionamiento básico.
-    // La expresión debe ser recibida como un mensaje del cliente hacia el servidor.
-    const char *expresion = "10+5";  
-    int resultado = calcular(expresion);
+    int resultado;
+    int server_socket;
+    int client_socket;
+    struct sockaddr_un server_addr;
+    struct sockaddr_un client_addr;
+    int slen = sizeof(server_addr);
+    int clen = sizeof(client_addr);
+
+    server_addr.sun_family = AF_UNIX;
+    strcpy(server_addr.sun_path, "unix_socket");
+    unlink(server_addr.sun_path);
+
+    server_socket = socket(AF_UNIX, SOCK_STREAM, 0);
+    if (bind(server_socket, (struct sockaddr *) &server_addr, slen) == -1) {
+        perror("Error");
+        exit(EXIT_FAILURE);
+    }
+    if (listen(server_socket, 1) == -1) {
+        perror("Error");
+        exit(EXIT_FAILURE);
+    }
+
+    printf("servidor: esperando conexión del cliente...\n");
+
+    while(1) {
+        client_socket = accept(server_socket, (struct sockaddr *) &client_addr, &clen);
+        if (client_socket == -1) {
+            perror("Error");
+            exit(EXIT_FAILURE);
+        }
+        int pid = fork();
+        printf("%d servidor recive nuevo cliente \n", pid);
+
+        const char *expresion;  
+        if(recv(client_socket,expresion, sizeof(expresion), 0) == -1){
+            perror("Error");
+            exit(EXIT_FAILURE);
+        }
+        printf("%s \n", expresion);
+        resultado = calcular(expresion);
+        close(client_socket);
+    }
     printf("El resultado de la operación es: %d\n", resultado);
     exit(0);
 }

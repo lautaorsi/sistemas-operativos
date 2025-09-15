@@ -53,12 +53,6 @@ static int run(char ***progs, size_t count)
 	if(pid == 0){  //si soy hijo
 		printf("soy hijo: %d \n", proceso_i);
 
-		// if( proceso_i != count - 1){ //para todos salvo el ultimo proceso, lo que iba al output va a pipe[i][WRITE]
-		// 	dup2(pipes[proceso_i][WRITE], STD_OUTPUT);
-		// }
-		// if( proceso_i != 0){
-		// 	dup2(pipes[proceso_i - 1][READ], STD_INPUT); //para todos salvo el primero, lo que iba al input va al read  
-		// }
 		
 		char* input;
 

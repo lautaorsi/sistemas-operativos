@@ -82,15 +82,17 @@ int main() {
         }
         
         printf("servidor recibe nuevo cliente \n");
-
-        const char *expresion;  
-        if(recv(client_socket,&expresion, sizeof(expresion),0) == -1){
+        
+        char expresion[100];  
+        if(recv(client_socket,expresion,100,0) == -1){
             perror("Error en recv");
             exit(EXIT_FAILURE);
         }
+        printf("asd \n");
         printf("recibo expresion %s \n", expresion);
         resultado = calcular(expresion);
         close(client_socket);
+        break;
     }
     printf("El resultado de la operación es: %d\n", resultado);
     exit(0);

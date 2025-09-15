@@ -67,7 +67,6 @@ void procesoHijo(){
 		}
 		//incremento y escribo si no soy proceso iniciador y/o no es mayor a numero secreto
 		numero += 1;
-		
 		write(pipes[proceso_i][WRITE], &numero, sizeof(int));
 	}
 }
@@ -79,7 +78,7 @@ void procesoHijoInicial(){
 	while(randomNum < valor_inicial){
 		randomNum = generate_random_number();
 	}
-	
+	printf("numero random: %d de hijo %d \n",randomNum, proceso_i);
 	write(pipes[proceso_i][WRITE], &randomNum, sizeof(int));
 	procesoHijo();
 }

@@ -22,8 +22,8 @@ int main() {
 	
 	printf("conexion valida \n");
 
-	int numero = 55;
-	if(send(server_socket, &numero, sizeof(int), 0) == -1){
+	char numero[3] = "3+2";
+	if(send(server_socket, &numero, sizeof(numero), 0) == -1){
 		perror("Error");
         exit(EXIT_FAILURE);
 	};

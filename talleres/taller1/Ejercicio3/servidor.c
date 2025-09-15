@@ -74,19 +74,21 @@ int main() {
             perror("Error en accept");
             exit(EXIT_FAILURE);
         }
+        
         int pid = fork();
+
         if(pid != 0){
             continue;
         }
         
-        printf("%d servidor recibe nuevo cliente \n", pid);
+        printf("servidor recibe nuevo cliente \n");
 
         const char *expresion;  
-        if(recv(client_socket,&expresion, sizeof(expresion), 0) == -1){
+        if(recv(client_socket,&expresion, sizeof(expresion),0) == -1){
             perror("Error en recv");
             exit(EXIT_FAILURE);
         }
-        printf("%s \n", expresion);
+        printf("recibo expresion %s \n", expresion);
         resultado = calcular(expresion);
         close(client_socket);
     }

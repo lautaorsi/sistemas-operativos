@@ -58,11 +58,11 @@ int main() {
 
     server_socket = socket(AF_UNIX, SOCK_STREAM, 0);
     if (bind(server_socket, (struct sockaddr *) &server_addr, slen) == -1) {
-        perror("Error");
+        perror("Error en bind");
         exit(EXIT_FAILURE);
     }
     if (listen(server_socket, 1) == -1) {
-        perror("Error");
+        perror("Error en listen");
         exit(EXIT_FAILURE);
     }
 
@@ -71,15 +71,19 @@ int main() {
     while(1) {
         client_socket = accept(server_socket, (struct sockaddr *) &client_addr, &clen);
         if (client_socket == -1) {
-            perror("Error");
+            perror("Error en accept");
             exit(EXIT_FAILURE);
         }
         int pid = fork();
-        printf("%d servidor recive nuevo cliente \n", pid);
+        if(pid != 0){
+            continue;
+        }
+        
+        printf("%d servidor recibe nuevo cliente \n", pid);
 
         const char *expresion;  
-        if(recv(client_socket,expresion, sizeof(expresion), 0) == -1){
-            perror("Error");
+        if(recv(client_socket,&expresion, sizeof(expresion), 0) == -1){
+            perror("Error en recv");
             exit(EXIT_FAILURE);
         }
         printf("%s \n", expresion);

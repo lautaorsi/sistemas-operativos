@@ -83,18 +83,22 @@ int main() {
         
         printf("servidor recibe nuevo cliente \n");
         
-        char expresion[100];  
-        if(recv(client_socket,expresion,100,0) == -1){
-            perror("Error en recv");
-            exit(EXIT_FAILURE);
-        }
-        printf("asd \n");
-        printf("recibo expresion %s \n", expresion);
-        resultado = calcular(expresion);
-        close(client_socket);
+        char expresion[100];
+        while(1){
+            if(recv(client_socket,expresion,strlen(expresion),0) == -1){
+                perror("Error en recv");
+                exit(EXIT_FAILURE);
+            }
+            printf("recibo expresion %s \n", expresion);
+            if(strcmp(expresion, "exit") == 0){
+                break;
+            }
+            resultado = calcular(expresion);
+            printf("El resultado de la operación es: %d\n", resultado);    
+        }  
         break;
     }
-    printf("El resultado de la operación es: %d\n", resultado);
+    close(client_socket);
     exit(0);
 }
 

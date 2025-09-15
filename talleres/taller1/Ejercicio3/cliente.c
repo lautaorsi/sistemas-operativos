@@ -20,12 +20,22 @@ int main() {
         exit(EXIT_FAILURE);
     }
 	
-	printf("conexion valida \n");
+	printf("conexion validada \n");
+	char operacion[100];
+	while(1){
+		scanf("%s", operacion);
+		
+			
+		if(strcmp(operacion,"exit") == 0){
+			exit(0);
+		}
+			
+		if(send(server_socket, &operacion, strlen(operacion), 0) == -1){
+			perror("Error");
+			exit(EXIT_FAILURE);
+		};
+	}
 
-	char numero[100] = "3+2";
-	if(send(server_socket, &numero, strlen(numero), 0) == -1){
-		perror("Error");
-        exit(EXIT_FAILURE);
-	};
+
 	exit(0);
 }

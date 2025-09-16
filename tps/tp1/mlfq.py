@@ -152,7 +152,9 @@ if options.jlist != '':
         job[jobCnt] = {'currPri':hiQueue, 'ticksLeft':quantum[hiQueue],
                        'allotLeft':allotment[hiQueue], 'startTime':startTime,
                        'runTime':runTime, 'timeLeft':runTime, 'ioFreq':ioFreq, 'doingIO':False,
-                       'firstRun':-1}
+                       'firstRun':-1,
+                       ##AGREGADO TP
+                       'waitingTime': 0}
         if startTime not in ioDone:
             ioDone[startTime] = []
         ioDone[startTime].append((jobCnt, 'JOB BEGINS'))
@@ -167,7 +169,8 @@ else:
         job[jobCnt] = {'currPri':hiQueue, 'ticksLeft':quantum[hiQueue],
                        'allotLeft':allotment[hiQueue], 'startTime':startTime,
                        'runTime':runTime, 'timeLeft':runTime, 'ioFreq':ioFreq, 'doingIO':False,
-                       'firstRun':-1}
+                       'firstRun':-1,
+                       'waitingTime': 0}
         if startTime not in ioDone:
             ioDone[startTime] = []
         ioDone[startTime].append((jobCnt, 'JOB BEGINS'))
@@ -296,8 +299,18 @@ while finishedJobs < totalJobs:
     # UPDATE TIME
     currTime += 1
 
+    # UPDATE WAITING TIME FOR OTHER PROCESSES
+    for i in job:
+        
+        
+        if (currJob != i) and (job[i]['timeLeft'] > 0) and (job[i]['startTime'] <= currTime):
+        
+            job[i]['waitingTime'] += 1
+
     # CHECK FOR JOB ENDING
     if timeLeft == 0:
+        if currTime % 2 == 0:
+            print(f'[AGREGADO TP] FINISHED JOBS: {finishedJobs + 1}')
         print('[ time %d ] FINISHED JOB %d' % (currTime, currJob))
         finishedJobs += 1
         job[currJob]['endTime'] = currTime
@@ -306,6 +319,9 @@ while finishedJobs < totalJobs:
         # print('AFTER POP', queue)
         assert(done == currJob)
         continue
+
+    if currTime % 2 == 0:
+        print(f'[AGREGADO TP] FINISHED JOBS: {finishedJobs}')
 
     # CHECK FOR IO
     issuedIO = False
@@ -364,12 +380,14 @@ print('')
 print('Final statistics:')
 responseSum   = 0
 turnaroundSum = 0
+waitingTimeSum = 0
 for i in range(numJobs):
     response   = job[i]['firstRun'] - job[i]['startTime']
     turnaround = job[i]['endTime'] - job[i]['startTime']
-    print('  Job %2d: startTime %3d - response %3d - turnaround %3d' % (i, job[i]['startTime'], response, turnaround))
+    print('  Job %2d: startTime %3d - response %3d - turnaround %3d - waitingTime %3d' % (i, job[i]['startTime'], response, turnaround, job[i]['waitingTime']))
     responseSum   += response
     turnaroundSum += turnaround
+    waitingTimeSum += job[i]['waitingTime']
 
-print('\n  Avg %2d: startTime n/a - response %.2f - turnaround %.2f' % (i, float(responseSum)/numJobs, float(turnaroundSum)/numJobs))
+print('\n  Avg %2d: startTime n/a - response %.2f - turnaround %.2f - waitingTime %.2f' % (i, float(responseSum)/numJobs, float(turnaroundSum)/numJobs, float(waitingTimeSum)/numJobs))
 print('\n')

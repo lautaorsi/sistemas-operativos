@@ -263,8 +263,8 @@ while finishedJobs < totalJobs:
             if options.iobump == False or type == 'JOB BEGINS':
                 queue[q].append(j)
             else:
+                
                 queue[q].insert(0, j)
-
     # now find the highest priority job
     currQueue = FindQueue()
     if currQueue == -1:

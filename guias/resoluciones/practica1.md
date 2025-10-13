@@ -1,5 +1,6 @@
 # Practica 1: Procesos y API del SO 
 
+
 ### Ejercicio 1
 
 Debemos guardar una imagen del estado del procesador antes de realizar el cambio, almacenar esa informacion para la tarea que estaba siendo ejecutada (en el **PCB o Process Control Block**) y luego modificar el estado del procesador (esto es: sus registros, pc, sp, etc). <br>
@@ -44,4 +45,11 @@ No son iguales:
 
 ### Ejercicio 10
 [Resuelto en practica1.c](./practica1.c)
+
+
+
+### Ejercicio 20
+
+    //Servidor 
+
 

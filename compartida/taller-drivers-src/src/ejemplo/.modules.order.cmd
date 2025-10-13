@@ -1,0 +1,1 @@
+cmd_/media/sf_compartida/taller-drivers-src/src/ejemplo/modules.order := {   echo /media/sf_compartida/taller-drivers-src/src/ejemplo/hello.ko; :; } > /media/sf_compartida/taller-drivers-src/src/ejemplo/modules.order

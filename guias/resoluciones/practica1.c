@@ -5,6 +5,7 @@
 #include <signal.h>
 #include <linux/sched.h>
 
+int pid_padre, pid_hijo, contador, interaccion_finalizada;
 
 int ej5(){
     
@@ -63,14 +64,13 @@ void ej9(){
     while(1){
         for(int i = 0; i < 3; i++){
             printf("Ping \n ");
-            kill(pidHijo, SIGTERM);
-            waitpid(pidHijo, 0, 0);
-            printf(" ");
+            kill(SIGTERM, pidHijo);
+            pause();
         }
         printf("Want to keep going? [1/0] ");
         scanf("%d", &keep_going);
         if(!keep_going) {
-            kill(pidHijo, SIGKILL);
+            kill( SIGKILL, pidHijo);
             exit(1);
         };
     }
@@ -96,9 +96,49 @@ void ej10(){
     exit(0);
 }
 
+void handlePong(){
+    printf("Pong \n");
+    kill(SIGTERM, pid_padre);
+    pause();
+}
+
+void handlePing(){
+    while(contador < 3){
+        contador++;
+        printf("Ping \n");
+        kill(SIGINT, pid_hijo);
+        pause();
+    }    
+}
+
+int ej9_p2(){
+    printf("asd \n");
+    pid_padre = getpid();
+    pid_hijo = fork();
+    signal(SIGINT, handlePong);
+    signal(SIGTERM, handlePing);
+    if (pid_hijo == 0){
+        pid_hijo = getpid();
+        
+    }
+
+    int i = 0;
+    while(i >= 0){
+        contador = 1;
+        printf("Ping \n");
+        kill(SIGINT, pid_hijo);
+        pause();
+        i--;
+    }
+
+    kill(SIGKILL, pid_hijo);
+    exit(0);
+
+}
 
 int main(){
-    ej10();
+    ej9_p2();
     return 0;
 }
+
 

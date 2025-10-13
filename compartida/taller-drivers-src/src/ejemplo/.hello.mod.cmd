@@ -1,0 +1,1 @@
+cmd_/media/sf_compartida/taller-drivers-src/src/ejemplo/hello.mod := printf '%s\n'   hello.o | awk '!x[$$0]++ { print("/media/sf_compartida/taller-drivers-src/src/ejemplo/"$$0) }' > /media/sf_compartida/taller-drivers-src/src/ejemplo/hello.mod

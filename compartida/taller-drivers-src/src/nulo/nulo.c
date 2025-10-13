@@ -6,11 +6,12 @@
 #include <linux/device.h>
 
 static ssize_t nulo_read(struct file *filp, char __user *data, size_t s, loff_t *off) {
+  printk(KERN_ALERT "Ni a ganchos leo todo lo que escribiste.\n");
   return 0;
 }
 
 static ssize_t nulo_write(struct file *filp, const char __user *data, size_t s, loff_t *off) {
-  return 0;
+  return s;
 }
 
 static struct file_operations nulo_operaciones = {
@@ -27,11 +28,11 @@ static int __init nulo_init(void) {
 
   char *name = "nulo";
 
-  cdev_init(*nulo_device,  nulo_operaciones);           //Inicializo como dispositivo
+  cdev_init(&nulo_device,  &nulo_operaciones);           //Inicializo como dispositivo
   
   alloc_chrdev_region(&major, 0, 1, name);              //Consigo major
 
-  cdev_add(nulo_device, major, 1);                      //asigno numeros
+  cdev_add(&nulo_device, major, 1);                      //asigno numeros
 
   nulo_class = class_create(THIS_MODULE, name);         //creo clase?
   device_create(nulo_class, NULL, major, NULL, name);   //asigno nodo?
@@ -43,24 +44,18 @@ static int __init nulo_init(void) {
 
 static void __exit nulo_exit(void) {
   
-  unregister_chrdev_region(major, 1);
+  unregister_chrdev_region(major, 1);                     //Elimino major
   
-  cdev_del(*nulo_device);
+  cdev_del(&nulo_device);                                 //Cierro device?
 
-  device_destroy(nulo_class, major);
+  device_destroy(nulo_class, major);                      //Destruyo device?
   
-  class_destroy(nulo_class);
+  class_destroy(nulo_class);                              //Destruyo clase
 
 
   printk(KERN_ALERT "Descargando modulo nulo\n");
-  return 0;
 }
 
-
-int nulo_write(*data){}
-
-
-int nulo_read(*data){} 
 
 
 

@@ -1,0 +1,1 @@
+cmd_/media/sf_compartida/taller-drivers-src/src/nulo/Module.symvers :=  sed 's/ko$$/o/'  /media/sf_compartida/taller-drivers-src/src/nulo/modules.order | scripts/mod/modpost -m     -o /media/sf_compartida/taller-drivers-src/src/nulo/Module.symvers -e -i Module.symvers -T - 

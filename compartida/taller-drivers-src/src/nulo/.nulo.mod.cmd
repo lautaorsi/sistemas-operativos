@@ -1,0 +1,1 @@
+cmd_/media/sf_compartida/taller-drivers-src/src/nulo/nulo.mod := printf '%s\n'   nulo.o | awk '!x[$$0]++ { print("/media/sf_compartida/taller-drivers-src/src/nulo/"$$0) }' > /media/sf_compartida/taller-drivers-src/src/nulo/nulo.mod

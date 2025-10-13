@@ -1,0 +1,1 @@
+cmd_/media/sf_compartida/taller-drivers-src/src/nulo/modules.order := {   echo /media/sf_compartida/taller-drivers-src/src/nulo/nulo.ko; :; } > /media/sf_compartida/taller-drivers-src/src/nulo/modules.order

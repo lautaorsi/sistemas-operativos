@@ -12,9 +12,20 @@ static int upper_bound = -1;
 
 static ssize_t azar_read(struct file *filp, char __user *data, size_t size, loff_t *offset) {
     
-    /* Completar */
+    void* res = kmalloc(size+1);                          //reservo size 
+
+    if(copyfromuser(res, data, s) != 0){             //hago copy 
+        return -EPERM;                                  //Si retorna algo distinto de 0 falla
+    }
     
-    return -EPERM;
+    res[size] = '\0';                                        //le hago el append del '\0'?
+
+    if(kstroint(data, 16, res) != 0){               //transformacion de str a int 
+        return -EPERM;                                  //Si retorna algo distinto de 0 falla
+    }
+    
+    
+
 }
 
 static ssize_t azar_write(struct file *filp, const char __user *data, size_t size, loff_t *offset) {

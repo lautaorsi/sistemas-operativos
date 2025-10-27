@@ -279,20 +279,26 @@ unsigned int Ext2FS::blockaddr2sector(unsigned int block)
 struct Ext2FSInode * Ext2FS::load_inode(unsigned int inode_number)
 {
 	
+	//Ejercicio 2
+
 	int block_size = 1024 << _superblock->log_block_size;
 
-	unsigned int inode_block_group_number = (blockgroup_for_inode(inode_number));
+	unsigned int inode_blockgroup_number = (blockgroup_for_inode(inode_number));					//Calculamos numero de bloque 
 
-	Ext2FSBlockGroupDescriptor* inode_block_group_addr = block_group(inode_block_group_number);
+	Ext2FSBlockGroupDescriptor* inode_block_group_addr = block_group(inode_blockgroup_number);		//Traemos descriptor correspondiente al bloque que contiene al inodo
 
-	inode_block_group_addr->inode_table;
+	unsigned int direccion_tabla_inodo = inode_block_group_addr->inode_table;						//Traemos direccion de tabla de inodos 
 
-	return NULL;
+	int indice_tabla_inodo = blockgroup_inode_index(inode_number);
+
+	//Tenemos el indice de inodo correspondiente a la tabla y la direccion de la (primera?) tabla
 
 }
 
 unsigned int Ext2FS::get_block_address(struct Ext2FSInode * inode, unsigned int block_number)
 {
+
+	//Ejercicio 1
 
 	int block_size = 1024 << _superblock->log_block_size;
 

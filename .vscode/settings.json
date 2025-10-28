@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "cstdlib": "c",
-        "un.h": "c"
+        "un.h": "c",
+        "ostream": "cpp"
     }
 }

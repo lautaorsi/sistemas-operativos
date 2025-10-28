@@ -278,20 +278,39 @@ unsigned int Ext2FS::blockaddr2sector(unsigned int block)
  */
 struct Ext2FSInode * Ext2FS::load_inode(unsigned int inode_number)
 {
-	
-	//Ejercicio 2
-
+	// Ejercicio 2
 	int block_size = 1024 << _superblock->log_block_size;
+    
+	// me fijo a que grupo de bloques pertenece
+	unsigned int blockgroup_numero = blockgroup_for_inode(inode_number);
+	Ext2FSBlockGroupDescriptor* block_group_i= block_group(blockgroup_numero); 
 
-	unsigned int inode_blockgroup_number = (blockgroup_for_inode(inode_number));					//Calculamos numero de bloque 
+	// una vez que se grupo me fijo en  donde empieza tabla
+	unsigned int table_start = block_group_i->inode_table;
+	unsigned int offset_inode = blockgroup_inode_index(inode_number);
+	
+	// me pido mem para leer y guardar 
+	unsigned char* block_buf = (unsigned char*) malloc(block_size);
+	unsigned char* Ext2FSInode_buf = (unsigned char*) malloc(sizeof(Ext2FSInode));
+	
+	// me fijo cuantos inodos me entran en bloque
+	unsigned int cant_inodes_block = block_size / _superblock->inode_size;
 
-	Ext2FSBlockGroupDescriptor* inode_block_group_addr = block_group(inode_blockgroup_number);		//Traemos descriptor correspondiente al bloque que contiene al inodo
+	//busco que bloque tiene el inodo q quiero
+	unsigned int block_number = offset_inode / cant_inodes_block;
+	read_block(table_start+block_number, block_buf);
+	
+	//busco cual inodo es dentro del bloque y leo 
+	unsigned int block_offset = offset_inode % cant_inodes_block;
 
-	unsigned int direccion_tabla_inodo = inode_block_group_addr->inode_table;						//Traemos direccion de tabla de inodos 
-
-	int indice_tabla_inodo = blockgroup_inode_index(inode_number);
-
-	//Tenemos el indice de inodo correspondiente a la tabla y la direccion de la (primera?) tabla
+	// copio el contenido del inodo que necesito a un struct inodo
+	for(int i = 0; i < sizeof(Ext2FSInode); i++){
+		Ext2FSInode_buf[i] = block_buf[(block_offset *_superblock->inode_size) + i];		
+	}
+	
+	free(block_buf);
+	
+	return (Ext2FSInode *)Ext2FSInode_buf;
 
 }
 
@@ -302,43 +321,42 @@ unsigned int Ext2FS::get_block_address(struct Ext2FSInode * inode, unsigned int 
 
 	int block_size = 1024 << _superblock->log_block_size;
 
-	int cantidad_direcciones = block_size/4;
+	int cantidad_direcciones = 256;
 	
 	if(block_number < 12){			//Si el numero de bloque es menor a 12 es direccion directa
 		return inode->block[block_number];
 	}
 
 	if(block_number < cantidad_direcciones + 12){								//Caso indireccion simple
-		int direccion_bloque_tabla = (inode->block[12]);							//Agarramos direccion de tabla
+		unsigned int direccion_bloque_tabla = (inode->block[12]);							//Agarramos direccion de tabla
 
 		unsigned char* buffer = (unsigned char*) malloc(block_size);				//Creamos buffer 
 		read_block(direccion_bloque_tabla, buffer);									//Traemos dato de disco
 
-		Ext2FSInode* direccion_inodo_tabla = (Ext2FSInode*) buffer;					//Casteamos a inodo
+		unsigned int retorno = ((unsigned int *)buffer)[block_number - 12];
 		free(buffer);																//Liberamos memoria
-		return direccion_inodo_tabla->block[block_number - 12];						//Retornamos indice correspondiente a nueva tabla 
+		return retorno;																//Retornamos indice correspondiente a nueva tabla 
 	} 			
-
 
 																				//Caso indireccion doble
 
 	int direccion_bloque_tabla1 = (inode->block[13]);								//Agarramos direccion de tabla
 	unsigned char* buffer = (unsigned char*) malloc(block_size);					//Armamos buffer
 	read_block(direccion_bloque_tabla1, buffer);									//Cargamos en buffer contenido de tabla
-	Ext2FSInode* direccion_inodo_tabla1 = (Ext2FSInode*) buffer;					//Casteamos buffer a puntero tabla
+	unsigned int* direccion_inodo_tabla1 = (unsigned int*) buffer;					//Casteamos buffer a puntero tabla
 
 	int indice_tabla = (block_number - cantidad_direcciones - 12)/cantidad_direcciones;		//Calculamos indice de segunda tabla 		
 
-	int direccion_bloque_tabla2 = direccion_inodo_tabla1->block[indice_tabla];			//Agarramos direccion de 2da tabla 
+	int direccion_bloque_tabla2 = direccion_inodo_tabla1[indice_tabla];			//Agarramos direccion de 2da tabla 
 	unsigned char* buffer2 = (unsigned char*) malloc(block_size);						//Armamos buffer
 	read_block(direccion_bloque_tabla2, buffer2);										//Traemos dato de disco
-	Ext2FSInode* direccion_inodo_tabla2 = (Ext2FSInode*) buffer2;						//Casteamos a inodo
-
-	free(buffer);
-	free(buffer2);
+	unsigned int* direccion_inodo_tabla2 = (unsigned int*) buffer2;						//Casteamos a inodo
 	
-	int indice_local_bloque = block_number - cantidad_direcciones*(indice_tabla) - 12 - 256; 	//Calculamos indice en segunda tabla
-	return direccion_inodo_tabla1->block[indice_local_bloque];									//Retornamos direccion bloque buscado 
+	int indice_local_bloque = block_number - cantidad_direcciones*(indice_tabla) - 12 - 256; 	//Calculamos indice de elemento en segunda tabla
+	unsigned int retorno = direccion_inodo_tabla2[indice_local_bloque];
+	free(buffer); 
+	free(buffer2);
+	return retorno;									//Retornamos direccion bloque buscado 
 }
 
 void Ext2FS::read_block(unsigned int block_address, unsigned char * buffer)
@@ -355,8 +373,38 @@ struct Ext2FSInode * Ext2FS::get_file_inode_from_dir_inode(struct Ext2FSInode * 
 		from = load_inode(EXT2_RDIR_INODE_NUMBER);
 	//std::cerr << *from << std::endl;
 	assert(INODE_ISDIR(from));
+	
+	unsigned int bloque1, bloque2;
+	unsigned char* buffer = (unsigned char*) malloc(2048);
 
-	//TODO: Ejercicio 3
+	int iterador = 0;
+	int bytes_recorridos = 0;
+	int cantidad_bytes = from->size;
+	
+	for(int i = 0; i < cantidad_bytes; i += 1024){
+		bloque1 = get_block_address(from, i/1024);
+		if(i < cantidad_bytes-1024){
+			bloque2 = get_block_address(from, (i/1024)+1);
+		}
+		read_block(bloque1, buffer);
+		read_block(bloque2, buffer + 1024);										//Agarro 2 bloques
+
+		while(iterador < 1024 && bytes_recorridos < cantidad_bytes){												//Recorro 1er bloque
+			Ext2FSDirEntry* dirEntry = (Ext2FSDirEntry*) (buffer + iterador);
+			if((strncmp(dirEntry->name, filename,dirEntry->name_length) == 0) && (dirEntry->name_length == strlen(filename))){								
+				std::cout << dirEntry->name << std::endl;
+				return load_inode(dirEntry->inode);								//Si tienen mismo nombre cargo y retorno inodo
+			}
+			iterador += dirEntry->record_length;								//CC incremento iterador
+			bytes_recorridos +=dirEntry->record_length; 								
+		}
+
+		iterador -= 1024;														//Si ya recorri todo el bloque actualizo iterador y recorro bytes 
+	}
+	
+	free(buffer);
+
+	return NULL;
 
 }
 

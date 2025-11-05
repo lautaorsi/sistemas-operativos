@@ -105,17 +105,22 @@ sem_t semaforo_ARM_STATUS, semaforo_DATA_READY, semaforo_TIMER, semaforo_brazo;
 
     int driver_init(){
         irq_handler(6, handler_disco);
-        irq_handler(7, handler_timer);
+        irq_handler(7, handler_timer);  //Vinculo handlers
+
+        semaforo_ARM_STATUS = semaforo(0);
+        semaforo_DATA_READY = semaforo(0);
+        semaforo_timer = semaforo(0);
+        semaforo_brazo = semaforo(1);       //Armo semaforos
     }
 
     int driver_write(int sector, void *data){
-        wait(semaforo_brazo);
-        void* datos = malloc(sizeof(data));
+        wait(semaforo_brazo);                   //Impedimos que dos procesos accedan al driver en simultaneo
+        void* datos = malloc(sizeof(data));     //Armamos buffer para dato
         copy_from_user(datos,data,sizeof(data));
         
         OUT(DOR_IO, 1); //Enciendo y espero 50ms
-        wait(semaforo_TIMER);
-        wait(semaforo_TIMER);
+        wait(semaforo_TIMER);   
+        wait(semaforo_TIMER);   //Lo hacemos dos veces porque la interrupción probablemente no llegue alineada
 
         int pista = sector / cantidad_sectores_por_pista();
 

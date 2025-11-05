@@ -285,7 +285,7 @@ struct Ext2FSInode * Ext2FS::load_inode(unsigned int inode_number)
 	unsigned int blockgroup_numero = blockgroup_for_inode(inode_number);
 	Ext2FSBlockGroupDescriptor* block_group_i= block_group(blockgroup_numero); 
 
-	// una vez que se grupo me fijo en  donde empieza tabla
+	// una vez que sé el grupo, me fijo en  donde empieza tabla
 	unsigned int table_start = block_group_i->inode_table;
 	unsigned int offset_inode = blockgroup_inode_index(inode_number);
 	
@@ -293,7 +293,7 @@ struct Ext2FSInode * Ext2FS::load_inode(unsigned int inode_number)
 	unsigned char* block_buf = (unsigned char*) malloc(block_size);
 	unsigned char* Ext2FSInode_buf = (unsigned char*) malloc(sizeof(Ext2FSInode));
 	
-	// me fijo cuantos inodos me entran en bloque
+	// me fijo cuantos inodos entran por bloque
 	unsigned int cant_inodes_block = block_size / _superblock->inode_size;
 
 	//busco que bloque tiene el inodo q quiero

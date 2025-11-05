@@ -1,7 +1,7 @@
-### Ejercicio 1
+## Ejercicio 1
 Es una pieza de software, aplicación de usuario, gestor de interrupciones y conoce el dispositivo que controla pero no el SO (a,d,e,f)
 
-### Ejercicio 2 
+## Ejercicio 2 
 
 Constantes:
 CHRONO_RESET
@@ -15,7 +15,7 @@ CHRONO_RESET
         return IN(CHRONO_CURRENT_TIME);
     }
 
-### Ejercicio 3
+## Ejercicio 3
 
     int driver_read(){
         while(true){
@@ -27,7 +27,7 @@ CHRONO_RESET
         }
     }
 
-### Ejercicio 4
+## Ejercicio 4
 
 vars globales
 sem_t semaforo
@@ -51,7 +51,7 @@ sem_t semaforo
     }
 
 
-### Ejercicio 7
+## Ejercicio 7
 
 Registros
 
@@ -65,34 +65,43 @@ Registros
     - ARM_STATUS
     - DATA_READY
 
-**a)**
+### a)
+vars globales 
+sem_t semaforo_brazo;
 
     int driver_wirte(int sector, void *data){
-        void* datos;
+        wait(semaforo_brazo);
+        void* datos = malloc(sizeof(data));
         copy_from_user(datos,data, sizeof(data));
-        
-        sleep(200);
 
         OUT(DOR_IO, 1); //Enciendo y espero 50ms
         sleep(50);
         
-        //Ignoro la parte de pista y voy directo a sector
-        
-        OUT(ARM, sector);   //hago q el brazo vaya a sector
+        int pista = sector / cantidad_sectores_por_pista();
 
+        int indice_pista = sector % cantidad_sectores_por_pista();  //Calculo indice dentro de pista
+        
+        OUT(ARM, pista);   //hago q el brazo vaya a pista
+        
         while(IN(ARM_STATUS)){} //Busy waiting hasta q el brazo este en posición
 
-        escribir_datos(datos);
+        OUT(SEEK_SECTOR, indice_pista); //voy a sector en pista
 
-        while(!IN(DATA_READY)){}
+        escribir_datos(datos);  //Escribo datos
 
-        OUT(DOR_IO, 0);
+        while(!IN(DATA_READY)){}    //Espero hasta que termine de escribirse
+
+        OUT(DOR_IO, 0);             //Apago brazo
+
+        sleep(200);                 //Espero 200ms para que no se pueda hacer otra operacion en el medio
+
+        signal(semaforo_brazo);
     }
     
-**b)**
+### b)
 
 vars globales
-sem_t semaforo_escritura;
+sem_t semaforo_ARM_STATUS, semaforo_DATA_READY, semaforo_TIMER, semaforo_brazo;
 
     int driver_init(){
         irq_handler(6, handler_disco);
@@ -100,9 +109,49 @@ sem_t semaforo_escritura;
     }
 
     int driver_write(int sector, void *data){
-        void* datos;
+        wait(semaforo_brazo);
+        void* datos = malloc(sizeof(data));
         copy_from_user(datos,data,sizeof(data));
+        
+        OUT(DOR_IO, 1); //Enciendo y espero 50ms
+        wait(semaforo_TIMER);
+        wait(semaforo_TIMER);
 
+        int pista = sector / cantidad_sectores_por_pista();
+
+        int indice_pista = sector % cantidad_sectores_por_pista();  //Calculo indice dentro de pista
+
+        OUT(ARM, pista);                                            //hago q el brazo vaya a pista
+
+        wait(semaforo_ARM_STATUS);
+
+        OUT(SEEK_SECTOR, indice_pista);                             //voy a sector en pista        
+
+        escribir_datos(datos);                                      //Escribo datos
+
+        wait(semaforo_DATA_READY);                                  //Espero a que se haya terminado de escribir
+
+        OUT(DOR_IO, 0);                                             //Apago brazo
+
+        for(int i = 0; i < 4; i++){
+            wait(semaforo_TIMER);
+        }
+        signal(semaforo_brazo);
+    }
+
+    void handler_disco(){
         
         
+        if(IN(DATA_READY)){                                         //Si la señal llegó por DATA_READY
+            signal(semaforo_DATA_READY);
+        }
+
+
+        if(IN(ARM_STATUS)){                                         //Si la señal llegó por ARM_STATUS
+            signal(semaforo_ARM_STATUS);
+        }
+    }
+
+    void handler_timer(){
+        signal(semaforo_TIMER);
     }

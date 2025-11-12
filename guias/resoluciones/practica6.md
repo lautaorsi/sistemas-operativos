@@ -55,7 +55,7 @@ Imagino que la gracia estaba en ver que si tenemos una indireccion doble/triple 
 ## Ejercicio 7
 
 ### a)
-Ambos casos son utiles segun yo, en la practica hablan solo de inodos pero no veo el problema con apuntar al primer bloque de datos en una FAT y listo
+Es solo para inodos 
 
 ### b)
 FAT, si lo que queremos es tener todo en un sector necesitamos la tabla, ya que para los inodos vamos a tener todo mas distribuido
@@ -108,4 +108,5 @@ Inodos, en FAT vamos a tener que estar cargando la tabla
     }
 
 ## Ejericico 11
+
 

@@ -16,7 +16,7 @@
 
 ### Syscalls útiles
 - **void OUT(int IO_address, int data)**: **ESCRIBE** data en el registro IO_address
-- **void IN(int IO_address)**: **LEE** el valor almacenado en IO_address
+- **void IN(int IO_address, int data)**: **LEE** el valor almacenado en IO_address
 - **int copy_from_user(void\* to, void\* from, int n)**: copia n bytes desde from (memoria usuario) a to (memoria kernel), devuelve 0 si funciona y otro numero si falla.
 - **int copy_to_user(void\* to, void \* from, int n)**: copia n bytes desde from (memoria kernel) a to (memoria usuario), devuelve 0 si funciona y otro numero si falla. 
 - **int request_irq(int irq, void *handler)**: Asocia interrupción irq a funcion handler
@@ -87,6 +87,12 @@ Veamos el paso a paso de como conseguir, a partir de un numero de inodo, su punt
             ...
         }
 
+        struct Ext2FSInode{
+            ...
+            unsigned short mode;
+            ...
+        }
+
 - **Funciones auxiliares**
 
         Ext2FSBlockGroupDescriptor* block_group(int blockgroup_number);                         //Dado un numero de blockgroup te retorna el descriptor
@@ -134,4 +140,35 @@ Y supongamos que tenemos el numero de inodo en la variable ``inode_number``
 - Symbolic Links: Crea un archivo (y su inodo) que contiene el path al archivo linkeado &larr; Permite hacerlo entre distintos sist de archivos
     - Solo es posible en inodos
     - No llevan contadores de symbolic links, si tenemos un symbolic link en el sistema y se borra el original tenemos problemas
+
+
+
+## Seguridad
+
+### Stack frames
+
+```
+    
+--- direcciones bajas ---
+
++++
+variables locales
+argumentos                  STACK FUNCION LLAMADA
+saved ebp
++++
+
++++
+Ret addr
+parametros                  STACK FUNCION LLAMADORA
+...
++++
+
+--- direcciones altas ---
+
+```
+
+### Buffer overflows
+
+
+
 

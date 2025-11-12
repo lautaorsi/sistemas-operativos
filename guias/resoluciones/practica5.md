@@ -160,3 +160,47 @@ sem_t semaforo_ARM_STATUS, semaforo_DATA_READY, semaforo_TIMER, semaforo_brazo;
     void handler_timer(){
         signal(semaforo_TIMER);
     }
+
+
+## Ejercicio 8
+
+    variables globales:
+    sem_t semaforo_escritura, semaforo_escribiendo;
+
+    int driver_init(){
+        irq_handler(HP_FINISHED_INT, handler_terminado);
+        semaforo_escritura = sem(1);
+        semaforo_escribiendo = sem(0);
+    }
+
+    int driver_remote(){
+        irq_free(HP_FINISHED_INT);
+        semaforo_escritura.destroy();
+        semaforo_escribiendo.destroy();
+    }
+
+    int driver_write(void *data, int size){
+        semaforo_escritura.wait();              //Bloqueo race conditions
+
+        char* buffer = (char *) malloc(size);   //Armo buffer
+        copy_from_user(buffer,data,size);       //Copio 
+        for(int i = 0; i < 5; i++){
+            OUT(LOC_TEXT_POINTER,buffer);       //Pruebo mandar los datos 5 veces
+            OUT(LOC_TEXT_SIZE, size);
+            OUT(LOC_CTRL, START);
+            
+            if(IN(LOC_CTRL) == PRINTING){               // si fue valida no le mando mas intentos, cc tengo que seguir intentando
+                break;
+            }
+        }
+
+        semaforo_escribiendo.wait();
+
+        semaforo_escritura.signal();            //Habilito a otros procesos a usar
+    }
+
+    void handler_terminado(){
+        semaforo_escribiendo.signal();
+    }
+
+

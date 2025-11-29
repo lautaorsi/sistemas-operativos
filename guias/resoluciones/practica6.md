@@ -110,3 +110,34 @@ Inodos, en FAT vamos a tener que estar cargando la tabla
 ## Ejericico 11
 
 
+    find_file_less_size(char* dir, int min_bytes, char* arch_nombre){
+        
+        Ext2FSInode* inode = inode_for_path(dir);       //Obtengo inodo de dir     
+
+        unsigned short longitud = inode->size;          //Obtengo su tamaño en bytes
+    
+        int cant_bloques = longitud / BLOCK_SIZE;       //Calculo cantidad de bloques a recorrer
+
+        char* buffer = (char*) malloc(BLOCK_SIZE * 2);
+
+        for(int i = 0; i < cant_bloques -1; i++){
+            unsigned int direccion1 = get_block_address(inode, i);
+            unsigned int direccion2 = get_block_address(inode, i+1);
+
+            read_block(direccion1, buffer);
+            read_block(direccion2, buffer+BLOCK_SIZE);
+
+            int iterador = 0;
+            while(iterador < BLOCK_SIZE){
+                Ext2FSDirEntry* entrada = (Ext2FSDirEntry*) buffer + iterador;
+                if(entrada->file_type == 0){                //Asumo file_type == 0 si es archivo normal
+                    Ext2FSInode* inodo = (Ext2FSInode*) entrada->inode;
+                    
+                    if(inodo->size <= min_bytes && strncmp(entrada->name, arch_nombre, sizeof(arch_nombre)) == 0){
+                        
+                    }
+                }
+            }
+        }
+    }
+    

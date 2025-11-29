@@ -142,7 +142,7 @@ Estrategia:
         read_block(buf,blockad);
         read_block(buf2, blockad2);                                                     //Leo bloques
 
-        while(recorrido < nodo->size){                                      
+        while(recorrido < inodo->size){                                      
             //Resolver ajuste de buffer
             Ext2FSDirEntry dentry = (Ext2FSDirEntry*) (buf + dentrypointer);    
             if(!strncmp(dentry->name, name, dentry->sizename)){                           //ESTO ES IMPORTANTE PARA EVITAR SUFIJOS/PREFIJOS

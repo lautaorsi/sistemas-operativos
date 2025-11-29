@@ -283,10 +283,13 @@ struct Ext2FSInode * Ext2FS::load_inode(unsigned int inode_number)
     
 	// me fijo a que grupo de bloques pertenece
 	unsigned int blockgroup_numero = blockgroup_for_inode(inode_number);
+
+	//Obtengo el descriptor
 	Ext2FSBlockGroupDescriptor* block_group_i= block_group(blockgroup_numero); 
 
 	// una vez que sé el grupo, me fijo en  donde empieza tabla
 	unsigned int table_start = block_group_i->inode_table;
+	// Calculo el offset en la tabla
 	unsigned int offset_inode = blockgroup_inode_index(inode_number);
 	
 	// me pido mem para leer y guardar 
